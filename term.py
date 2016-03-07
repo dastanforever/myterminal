@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk, Pango
-import lib
+import lib, buffer
 
 class MainWindow(Gtk.Window):
     """docstring for Main Terminal Window"""
@@ -14,34 +14,26 @@ class MainWindow(Gtk.Window):
 
         self.grid = Gtk.Grid()
         self.add(self.grid)
-        self.tv = self.create_textview()
+        self.buffer = buffer.textbuffer()
+        self.tv = self.create_textview(buffer = self.buffer)
 
-    def create_textview(self):
+    def create_textview(self, buffer):
         scrolledwindow = Gtk.ScrolledWindow()
         scrolledwindow.set_hexpand(True)
         scrolledwindow.set_vexpand(True)
         self.grid.attach(scrolledwindow, 0, 1, 3, 1)
 
-        self.textview = Gtk.TextView()
+        self.textview = Gtk.TextView(buffer = buffer)
         self.textview.set_wrap_mode(Gtk.WrapMode.WORD)
         self.textbuffer = self.textview.get_buffer()
-        self.textbuffer.set_text(self.username + " $ ")
+        self.set_text(self.username + " $ ")
         scrolledwindow.add(self.textview)
-
-        self.tag_bold = self.textbuffer.create_tag("bold",
-            weight=Pango.Weight.BOLD)
-        self.tag_italic = self.textbuffer.create_tag("italic",
-            style=Pango.Style.ITALIC)
-        self.tag_underline = self.textbuffer.create_tag("underline",
-            underline=Pango.Underline.SINGLE)
-        self.tag_found = self.textbuffer.create_tag("found",
-            background="yellow")
         return self.textview
 
-    def set_text(self, text="\n" + self.username + " $ "):
-        self.textbuffer = self.tv.get_buffer()
-        end_iter = self.textbuffer.get_end_iter()
-        self.textbuffer.insert(end_iter, text)
+    def set_text(self, text=None):
+        if text is None:
+            text = "\n" + self.username + " $ "
+        self.buffer.insert_cmdline(text)
 
 termwindow = MainWindow()
 
@@ -49,8 +41,6 @@ def keyPress(widget, event):
     if event.keyval == 65293:
         termwindow.set_text()
         return True
-    if event.keyval == :
-
     return False
 
 
