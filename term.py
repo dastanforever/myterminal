@@ -3,11 +3,13 @@
 
 from gi.repository import Gtk, Pango
 import lib, buffer
+import readcommand as readin
 
 class MainWindow(Gtk.Window):
     """docstring for Main Terminal Window"""
     def __init__(self):
         self.username = lib.getusername()
+        self.start_read_index = 0
         Gtk.Window.__init__(self, title=self.username)
         Gtk.Window.set_default_size(self, 700, 500)
         Gtk.Window.set_position(self, Gtk.WindowPosition.CENTER)
@@ -26,7 +28,8 @@ class MainWindow(Gtk.Window):
         self.textview = Gtk.TextView(buffer = buffer)
         self.textview.set_wrap_mode(Gtk.WrapMode.WORD)
         self.textbuffer = self.textview.get_buffer()
-        self.set_text(self.username + " $ ")
+        self.reset_start()
+        self.set_text(self.username + " $ " + str(self.get_start_pos()))
         scrolledwindow.add(self.textview)
         return self.textview
 
@@ -35,11 +38,31 @@ class MainWindow(Gtk.Window):
             text = "\n" + self.username + " $ "
         self.buffer.insert_cmdline(text)
 
+    def reset_start(self):
+        self.start_read_index = self.buffer.get_curr_pos()
+
+    def get_start_pos(self):
+        return self.start_read_index
+
+    def get_c_pos(self):
+        return self.buffer.get_curr_pos()
+
+    def read(self):
+        reader = readin.Reader()
+        return reader.read(self.get_start_pos(), self.get_c_pos(), self.textbuffer)
+
+
+# Maqin Window.
 termwindow = MainWindow()
 
 def keyPress(widget, event):
     if event.keyval == 65293:
-        termwindow.set_text()
+        # Read the command.
+        # insert the main type of text into the buffer.
+        command = termwindow.read()
+        # Set the input main text again.
+        termwindow.set_text(command)
+        termwindow.reset_start()
         return True
     return False
 

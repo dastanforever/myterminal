@@ -1,7 +1,6 @@
 
 
 
-
 from gi.repository import Gtk, Pango
 
 class textbuffer(Gtk.TextBuffer):
@@ -34,3 +33,6 @@ class textbuffer(Gtk.TextBuffer):
         iter.backward_chars(length)
         # And this applies tag from iter to end of buffer
         self.apply_tag_by_name('main_cmdline', self.get_iter_position(), iter)
+
+    def get_curr_pos(self):
+        return self.get_iter_position()
